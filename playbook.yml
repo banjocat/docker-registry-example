@@ -1,0 +1,17 @@
+---
+
+- hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+      - name: make cert directory
+        shell: mkdir -p ~/certs
+
+      - name: Create certs
+        shell: openssl req -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key -x509 -days 365 -out certs/domain.crt
+
+      - name: copy cert
+        shell: cp ~/certs/ca.crt /etc/docker/certs.d/{{domain}}:5000/ca.crt
+
+      - name: start docker with TSL
+        shell: echo "starting docker"
