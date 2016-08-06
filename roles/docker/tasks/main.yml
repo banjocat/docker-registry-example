@@ -17,7 +17,7 @@
 
 - name: Add source list
   apt_repository:
-      repo: "deb https://apt.dockerproject.org/repo ubuntu-xenial {{apt_release}}"
+      repo: "deb https://apt.dockerproject.org/repo {{ubunut_version}} {{apt_release}}"
 
 
 - name: Install docker
