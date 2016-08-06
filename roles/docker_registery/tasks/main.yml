@@ -12,12 +12,15 @@
       -newkey rsa:4096 \
       -nodes \
       -sha256 \
+      -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.{{domain}}" \
       -keyout {{certs_path}}/domain.key \
       -x509 \
       -days 365 \
       -out {{certs_path}}/domain.crt
   args:
     creates: "{{certs_path}}/domain.crt"
+  tags:
+      - debug
 
 - name: copy cert
   shell: cp {{certs_path}}/ca.crt /etc/docker/certs.d/{{domain}}:5000/ca.crt

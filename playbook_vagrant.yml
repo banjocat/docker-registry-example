@@ -6,9 +6,9 @@
   roles:
       - python
       - role: docker
+        ubuntu_version: ubuntu-xenial
         apt_release: main
 
       - role: docker_registery
-        ubuntu_version: ubuntu-xenial
         certs_path: "/tmp/"
         domain: everythingisawesome.com
