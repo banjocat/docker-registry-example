@@ -4,6 +4,7 @@
   gather_facts: no
   become: yes
   roles:
+      - python
       - role: docker
         apt_release: main
 
