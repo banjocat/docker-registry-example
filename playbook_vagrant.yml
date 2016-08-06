@@ -10,5 +10,5 @@
         apt_release: main
 
       - role: docker_registery
-        certs_path: "/tmp/"
         domain: everythingisawesome.com
+        certs_path: /etc/docker/certs.d/{{domain}}:5000/

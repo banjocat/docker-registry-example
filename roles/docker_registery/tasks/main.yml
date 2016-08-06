@@ -1,18 +1,21 @@
 ---
 
-- name: make cert directory
+- name: make docker certs directory
   file:
       path: "{{certs_path}}"
       state: directory
+      recurse: true
+  tags:
+      - debug
 
 - name: create certs
   shell: |
       openssl req \
-      - new
+      -new \
       -newkey rsa:4096 \
       -nodes \
       -sha256 \
-      -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.{{domain}}" \
+      -subj "/C=US" \
       -keyout {{certs_path}}/domain.key \
       -x509 \
       -days 365 \
@@ -22,10 +25,6 @@
   tags:
       - debug
 
-- name: copy cert
-  shell: cp {{certs_path}}/ca.crt /etc/docker/certs.d/{{domain}}:5000/ca.crt
-  args:
-    creates: /etc/docker/certs.d/{{domain}}:5000/ca.crt
 
 - name: start docker with TSL
   shell: echo "starting docker"
