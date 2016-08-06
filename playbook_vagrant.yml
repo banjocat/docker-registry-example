@@ -9,6 +9,6 @@
         apt_release: main
 
       - role: docker_registery
-        ubunut_version: ubuntu-xenial
+        ubuntu_version: ubuntu-xenial
         certs_path: "/tmp/"
         domain: everythingisawesome.com
