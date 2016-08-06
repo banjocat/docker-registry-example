@@ -1,0 +1,4 @@
+---
+
+- name: Add python
+  raw: apt-get install -y python
