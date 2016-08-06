@@ -2,14 +2,18 @@
 
 - name: make cert directory
   file:
-      path: {{certs_path}}
+      path: "{{certs_path}}"
       state: directory
 
-- name: Create certs
-  shell: openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{certs_path}}/domain.key -x509 -days 365 -out {{certs_path}}/domain.crt
+- name: create certs
+  shell: "openssl req -newkey rsa:4096 -nodes -sha256 -keyout {{certs_path}}/domain.key -x509 -days 365 -out {{certs_path}}/domain.crt"
+  args:
+    creates: "{{certs_path}}/domain.crt"
 
 - name: copy cert
   shell: cp {{certs_path}}/ca.crt /etc/docker/certs.d/{{domain}}:5000/ca.crt
+  args:
+    creates: /etc/docker/certs.d/{{domain}}:5000/ca.crt
 
 - name: start docker with TSL
   shell: echo "starting docker"
