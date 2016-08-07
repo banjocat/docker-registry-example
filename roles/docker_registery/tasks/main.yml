@@ -7,15 +7,7 @@
       recurse: true
 
 
-- name: Make registry volume path
-  file:
-      path: "/volumes/{{domain}}"
-      state: directory
 
-- name: create auth directory
-  file:
-      path: "/auth"
-      state: directory
 
 - name: create certs
   shell: |
@@ -36,6 +28,10 @@
       name: registry
       tag: "{{registry_tag}}"
 
+- name: create auth directory
+  file:
+      path: "/auth"
+      state: directory
 
 - name: make password file
   shell: docker run --name htpasswd registry:{{registry_tag}} /usr/bin/htpasswd -nbB {{user}} {{user_password}} > /auth/htpasswd
@@ -43,6 +39,10 @@
       - create_user
       - debug
 
+- name: Make registry volume path
+  file:
+      path: "/volumes/{{domain}}"
+      state: directory
 
 - name: start the registery
   docker_container:
