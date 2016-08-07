@@ -6,9 +6,14 @@
   roles:
       - python
       - role: docker
+        # Another alterative is ubuntu-trusty
         ubuntu_version: ubuntu-xenial
+        # can switch to experimental for bleeding edge
         apt_release: main
 
       - role: docker_registery
+        user: admin
+        user_password: password
         domain: everythingisawesome.com
         certs_path: /etc/docker/certs.d/{{domain}}:5000/
+        registry_tag: 2.5

@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbook_vagrant.yml"
+        ansible.playbook = "playbook.yml"
         ansible.tags = "debug"
     end
 

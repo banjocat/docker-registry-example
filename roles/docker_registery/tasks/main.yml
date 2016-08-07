@@ -5,13 +5,21 @@
       path: "{{certs_path}}"
       state: directory
       recurse: true
-  tags:
-      - debug
+
+
+- name: Make registry volume path
+  file:
+      path: "/volumes/{{domain}}"
+      state: directory
+
+- name: create auth directory
+  file:
+      path: "/auth"
+      state: directory
 
 - name: create certs
   shell: |
       openssl req \
-      -new \
       -newkey rsa:4096 \
       -nodes \
       -sha256 \
@@ -22,9 +30,37 @@
       -out {{certs_path}}/domain.crt
   args:
     creates: "{{certs_path}}/domain.crt"
+
+- name: pull docker registery image
+  docker_image:
+      name: registry
+      tag: "{{registry_tag}}"
+
+
+- name: make password file
+  shell: docker run --name htpasswd registry:{{registry_tag}} /usr/bin/htpasswd -nbB {{user}} {{user_password}} > /auth/htpasswd
   tags:
+      - create_user
       - debug
 
 
-- name: start docker with TSL
-  shell: echo "starting docker"
+- name: start the registery
+  docker_container:
+      name: registry
+      image: registry:{{registry_tag}}
+      restart: true
+      published_ports: 
+          - "5000:5000"
+      volumes:
+          - "/auth/:/home"
+          - "/volumes/{{domain}}:/var/lib/registry"
+      env:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: "/home/htpasswd"
+          REGISTRY_HTTP_TLS_CERTAIFICATE: "{{certs_path}}/domain.crt"
+          REGISTRY_HTTP_TLS_KEY: "{{certs_path}}/domain.key"
+  tags:
+      - debug
+          
+
