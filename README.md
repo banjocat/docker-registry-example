@@ -1,5 +1,2 @@
 # docker-registry-example
-How to create a self signing TSL docker registry
-
-
-Work in progress!
+Creates a single signing TLS docker registry using ansible
