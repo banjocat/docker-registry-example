@@ -2,4 +2,4 @@
 How to create a self signing TSL docker registry
 
 
-Work in progress!
+Be warned. A self signing SSL cert is recommended only for internal networks.
