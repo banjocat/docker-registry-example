@@ -14,6 +14,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "docker" do |docker|
         docker.vm.hostname = "everythingisawesome.com"
+        config.vm.network "private_network", type: "dhcp"
     end
 
 end
