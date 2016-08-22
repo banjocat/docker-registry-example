@@ -1,7 +1,6 @@
 ---
 
 - hosts: all
-  gather_facts: no
   become: yes
   roles:
       - python
@@ -14,6 +13,6 @@
       - role: docker_registery
         user: admin
         user_password: password
-        domain: everythingisawesome.com
-        certs_path: /etc/docker/certs.d/{{domain}}:5000/
+        domain: 172.28.128.3
+        certs_path: /certs
         registry_tag: 2.5

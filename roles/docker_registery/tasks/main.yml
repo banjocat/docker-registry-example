@@ -1,12 +1,11 @@
 ---
 
+
 - name: make docker certs directory
   file:
       path: "{{certs_path}}"
       state: directory
       recurse: true
-
-
 
 
 - name: create certs
@@ -15,13 +14,40 @@
       -newkey rsa:4096 \
       -nodes \
       -sha256 \
-      -subj "/C=US" \
+      -subj "/C=US/CN={{domain}}" \
       -keyout {{certs_path}}/domain.key \
       -x509 \
       -days 365 \
       -out {{certs_path}}/domain.crt
   args:
     creates: "{{certs_path}}/domain.crt"
+
+
+- name: Create docker trust directory
+  file:
+      path: /etc/docker/certs.d/{{domain}}
+      state: directory
+
+- name: Make link to cert
+  file:
+      dest: /etc/docker/certs.d/{{domain}}/ca.crt
+      src: "{{certs_path}}/domain.crt"
+      state: link
+
+- name: Trust cert for OS - debian
+  file:
+      dest: /usr/local/share/ca-certificates/{{domain}}.crt
+      src: "{{certs_path}}/domain.crt"
+      state: link
+
+
+
+  #- name: Add docker opts
+  #  lineinfile:
+  #      regexp: ^DOCKER_OPTS
+  #      #line: DOCKER_OPTS="--tls --tlscacert={{certs_path}}/domain.crt --tlscert={{certs_path}}/domain.crt --tlskey={{certs_path}}/domain.key"
+  #      line: DOCKER_OPTS="--insecure-registry {{domain}}:5000"
+  #      dest: /etc/default/docker
 
 - name: pull docker registery image
   docker_image:
@@ -34,7 +60,7 @@
       state: directory
 
 - name: make password file
-  shell: docker run --name htpasswd registry:{{registry_tag}} /usr/bin/htpasswd -nbB {{user}} {{user_password}} > /auth/htpasswd
+  shell: docker run registry:{{registry_tag}} /usr/bin/htpasswd -nbB {{user}} {{user_password}} > /auth/htpasswd
   tags:
       - create_user
       - debug
@@ -44,21 +70,26 @@
       path: "/volumes/{{domain}}"
       state: directory
 
+- name: Restart docker
+  service: name=docker state=restarted
+
 - name: start the registery
   docker_container:
       name: registry
       image: registry:{{registry_tag}}
       restart: true
+      recreate: true
       published_ports: 
           - "5000:5000"
       volumes:
-          - "/auth/:/home"
+          - "/auth/:/auth"
           - "/volumes/{{domain}}:/var/lib/registry"
+          - "{{certs_path}}:/certs"
       env:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-          REGISTRY_AUTH_HTPASSWD_PATH: "/home/htpasswd"
-          REGISTRY_HTTP_TLS_CERTAIFICATE: "{{certs_path}}/domain.crt"
+          REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
+          REGISTRY_HTTP_TLS_CERTIFICATE: "{{certs_path}}/domain.crt"
           REGISTRY_HTTP_TLS_KEY: "{{certs_path}}/domain.key"
   tags:
       - debug
